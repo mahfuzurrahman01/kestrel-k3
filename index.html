@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kestrel K3</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Kestrel K3 — a drivable reverse-trike that folds its wheels flat and flies on them. Interactive engineering drawing built with Three.js.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+<main id="sheet" class="sheet">
+  <div id="stage" class="stage" aria-label="Interactive 3D drawing of the Kestrel K3">
+    <canvas id="c"></canvas>
+  </div>
+
+  <!-- drafting frame -->
+  <div class="frame" aria-hidden="true">
+    <div class="zones zones-top"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span></div>
+    <div class="zones zones-bottom"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span></div>
+    <div class="zones zones-left"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span></div>
+    <div class="zones zones-right"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span></div>
+  </div>
+
+  <div id="status" class="status">Drafting the K3…</div>
+
+  <header class="intro">
+    <p class="eyebrow">DWG KS‑K3‑001 · REV C · GROUND / SKY</p>
+    <h1>Kestrel <span class="tag">K3</span></h1>
+    <p class="tagline">Rides on three. Flies on the same three.</p>
+    <p id="story" class="story">On the ground it's a reverse trike. Drive it, then press Space and every wheel folds flat into a lift fan.</p>
+  </header>
+
+  <section class="mode" aria-label="Mode">
+    <div id="switch" class="switch" data-mode="0" role="group" aria-label="Ground or sky">
+      <button type="button" data-mode="0" aria-pressed="true">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.2"/><circle cx="10" cy="10" r="2.6"/></svg>Ground
+      </button>
+      <button type="button" data-mode="1" aria-pressed="false">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.2"/><path d="M10 10 L10 3.4 M10 10 L15.7 13.3 M10 10 L4.3 13.3"/></svg>Sky
+      </button>
+      <i class="thumb" aria-hidden="true"></i>
+    </div>
+    <div class="phase">
+      <div class="meter" aria-hidden="true"><i id="gfill"></i><span class="ticks"></span></div>
+      <span id="gpct" class="mono">GROUND</span>
+    </div>
+  </section>
+
+  <aside id="ortho" class="ortho" aria-label="Orthographic projection">
+    <div class="ortho-head mono"><span>THIRD‑ANGLE PROJECTION</span><span>SCALE 1:20</span></div>
+    <div class="ortho-grid">
+      <figure><div id="v-plan" class="view"></div><figcaption class="mono">PLAN</figcaption></figure>
+      <figure class="symbol" aria-hidden="true">
+        <svg viewBox="0 0 64 34"><path d="M4 9 L22 13 L22 21 L4 25 Z"/><line x1="0" y1="17" x2="28" y2="17" class="cl"/><circle cx="45" cy="17" r="7"/><circle cx="45" cy="17" r="3.4"/><line x1="34" y1="17" x2="58" y2="17" class="cl"/></svg>
+      </figure>
+      <figure><div id="v-side" class="view"></div><figcaption class="mono">SIDE ELEVATION</figcaption></figure>
+      <figure><div id="v-end" class="view"></div><figcaption class="mono">FRONT ELEVATION</figcaption></figure>
+    </div>
+    <div class="scalebar mono" aria-hidden="true"><i></i><i></i><i></i><i></i><span>0</span><span>1 m</span></div>
+  </aside>
+
+  <section class="gauges" aria-label="Instruments">
+    <svg class="dial" viewBox="0 0 148 148" aria-hidden="true">
+      <circle cx="74" cy="74" r="70" class="dial-bg"/>
+      <g id="compass"></g>
+      <path class="lubber" d="M74 2 L79 11 L69 11 Z"/>
+      <circle cx="74" cy="74" r="50" class="arc-track" transform="rotate(135 74 74)"/>
+      <circle id="spd-arc" cx="74" cy="74" r="50" class="arc" transform="rotate(135 74 74)"/>
+      <text id="spd" x="74" y="80" class="spd">0</text>
+      <text x="74" y="96" class="unit">KM/H</text>
+      <text id="hdg" x="74" y="120" class="hdg">HDG 000°</text>
+    </svg>
+    <dl class="readouts mono">
+      <div><dt>CLEARANCE</dt><dd id="s-clear">270 mm</dd></div>
+      <div><dt>FRONT TRACK</dt><dd id="s-span">1120 mm</dd></div>
+      <div><dt>FAN RPM</dt><dd id="s-rpm">0</dd></div>
+      <div><dt>ODOMETER</dt><dd id="s-odo">0.0 m</dd></div>
+    </dl>
+  </section>
+
+  <section class="keys" aria-label="Controls">
+    <div id="pad" class="pad">
+      <button type="button" data-k="up" class="k-up" aria-label="Forward">W</button>
+      <button type="button" data-k="left" class="k-left" aria-label="Left">A</button>
+      <span id="puck" class="puck" aria-hidden="true"></span>
+      <button type="button" data-k="right" class="k-right" aria-label="Right">D</button>
+      <button type="button" data-k="down" class="k-down" aria-label="Back">S</button>
+    </div>
+    <ul class="legend">
+      <li><kbd class="kbd wide" data-k="space">Space</kbd><span>Ground ↔ sky</span></li>
+      <li id="strafe" class="off"><kbd class="kbd" data-k="q">Q</kbd><kbd class="kbd" data-k="e">E</kbd><span>Strafe (sky)</span></li>
+      <li><kbd class="kbd" data-k="r">R</kbd><span>Recenter</span></li>
+    </ul>
+  </section>
+
+  <section class="block" aria-label="Drawing settings">
+    <div class="row">
+      <span class="label mono">VIEW</span><b id="view-name" class="val mono">Shaded</b>
+    </div>
+    <div class="row btns">
+      <button type="button" id="wire" class="chip" aria-pressed="false">Wireframe</button>
+      <button type="button" id="explode" class="chip" aria-pressed="false">Explode</button>
+    </div>
+    <div class="row">
+      <span class="label mono">FINISH</span><b id="paint-name" class="val mono">Signal</b>
+    </div>
+    <div id="swatches" class="row swatches"></div>
+    <div class="row meta mono">
+      <span>DRAWN · KESTREL WORKS</span><button type="button" id="reset" class="link">Reset view</button>
+    </div>
+  </section>
+</main>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
