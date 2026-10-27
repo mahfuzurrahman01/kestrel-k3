@@ -69,14 +69,14 @@ const groundGrid = new THREE.Mesh(
   new THREE.PlaneGeometry(40, 40),
   new THREE.ShaderMaterial({
     transparent: true, depthWrite: false,
-    uniforms: { uCenter: { value: new THREE.Vector2() }, uColor: { value: new THREE.Color(0xcfe6ff) }, uRadius: { value: 7.5 } },
+    uniforms: { uCenter: { value: new THREE.Vector2() }, uColor: { value: new THREE.Color(0xcfe6ff) }, uRadius: { value: 4.5 } },
     vertexShader: `varying vec2 vP; void main(){ vec4 w = modelMatrix * vec4(position,1.0); vP = w.xz; gl_Position = projectionMatrix * viewMatrix * w; }`,
     fragmentShader: `
       varying vec2 vP; uniform vec2 uCenter; uniform vec3 uColor; uniform float uRadius;
       float grid(vec2 p, float s){ vec2 q = p / s; vec2 g = abs(fract(q - 0.5) - 0.5) / fwidth(q); return 1.0 - min(min(g.x, g.y), 1.0); }
       void main(){
         float fade = 1.0 - smoothstep(uRadius * 0.25, uRadius, distance(vP, uCenter));
-        float a = (grid(vP, 0.5) * 0.10 + grid(vP, 2.5) * 0.22) * fade;
+        float a = grid(vP, 2.5) * 0.14 * fade;   // major lines only, faint, local to the car
         if (a < 0.003) discard;
         gl_FragColor = vec4(uColor, a);
       }`,
@@ -106,7 +106,7 @@ const VIEW_DIR = new THREE.Vector3(-3.4, 1.6, 3.2).normalize();   // default cam
 const VIEW_TGT_Y = 0.5;
 
 /* ---------------- trails & downwash ---------------- */
-const TRAIL_MAX = 700;
+const TRAIL_MAX = 140;   // ~11 m of trail
 const trailMat = new THREE.LineDashedMaterial({ vertexColors: true, transparent: true, depthWrite: false, dashSize: 0.16, gapSize: 0.08 });
 const trails = [0, 1, 2].map(() => {
   const g = new THREE.BufferGeometry();
@@ -500,7 +500,7 @@ function addTrailPoint(tr, p) {
   const pos = tr.g.attributes.position.array, col = tr.g.attributes.color.array, n = tr.pts.length;
   for (let i = 0; i < n; i++) {
     pos[i * 3] = tr.pts[i][0]; pos[i * 3 + 1] = 0.004; pos[i * 3 + 2] = tr.pts[i][1];
-    col[i * 4] = 0.82; col[i * 4 + 1] = 0.92; col[i * 4 + 2] = 1; col[i * 4 + 3] = Math.pow(i / n, 1.5) * 0.7;
+    col[i * 4] = 0.82; col[i * 4 + 1] = 0.92; col[i * 4 + 2] = 1; col[i * 4 + 3] = Math.pow(i / n, 2) * 0.45;
   }
   tr.g.attributes.position.needsUpdate = true;
   tr.g.attributes.color.needsUpdate = true;
