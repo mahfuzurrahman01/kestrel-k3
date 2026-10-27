@@ -3,6 +3,9 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createMaterials, PAINTS } from './materials.js';
 import { Vehicle } from './vehicle.js';
+import { inject } from '@vercel/analytics';
+
+inject();
 
 /* ======================================================================
  *  Kestrel K3 — interactive engineering drawing
